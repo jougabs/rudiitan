@@ -1,112 +1,124 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>警告 — ジョーク</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>警告 - システム侵入検出</title>
 <style>
-  :root{--bg:#000;--text:#7CFC00;--accent:#ff4d4d}
-  html,body{height:100%;margin:0}
-  body{
-    background:var(--bg);
-    color:var(--text);
-    font-family: "Courier New", monospace;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:24px;
-  }
-  .box{
-    max-width:760px;
-    width:100%;
-    border:2px solid rgba(255,255,255,0.06);
-    padding:20px;
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
-    box-shadow:0 8px 30px rgba(0,0,0,0.6);
-    border-radius:8px;
-  }
-  pre{
-    white-space:pre-wrap;
-    margin:0 0 18px 0;
-    line-height:1.45;
-    font-size:16px;
-  }
-  .red{color:var(--accent); font-weight:700}
-  a.button{
-    display:inline-block;
-    padding:10px 14px;
-    color:#000;
-    background:#fff;
-    border-radius:6px;
-    text-decoration:none;
-    font-weight:700;
-    margin-right:10px;
-  }
-  .note{margin-top:12px;color:#9abf9a;font-size:14px}
-  /* flicker */
-  @keyframes flicker {
-    0%,19%,21%,23%,25%,54%,56%,100%{opacity:1}
-    20%,24%,55%{opacity:.15}
-  }
-  .flicker{animation:flicker 1.2s infinite}
-  /* reveal area */
-  #reveal{display:none;margin-top:12px;background:#071; color:#dff; padding:12px;border-radius:6px}
+    body {
+        margin: 0;
+        padding: 0;
+        background: black url('A_digital_image_of_a_computer_screen_displays_a_wa.png') no-repeat center center fixed;
+        background-size: cover;
+        color: lime;
+        font-family: monospace;
+        text-align: center;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .overlay {
+        background-color: rgba(0, 0, 0, 0.75);
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        animation: flicker 1.5s infinite;
+    }
+
+    h1 {
+        font-size: 2.5em;
+        margin-bottom: 20px;
+        animation: blink 1s infinite;
+    }
+
+    p {
+        font-size: 1.2em;
+        max-width: 80%;
+        line-height: 1.5;
+    }
+
+    @keyframes blink {
+        0%, 50%, 100% { opacity: 1; }
+        25%, 75% { opacity: 0; }
+    }
+
+    @keyframes flicker {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.95; }
+    }
+
+    .terminal {
+        border: 1px solid lime;
+        padding: 10px;
+        max-width: 90%;
+        margin-top: 20px;
+        text-align: left;
+        font-size: 0.9em;
+        height: 150px;
+        overflow-y: auto;
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    button {
+        margin-top: 30px;
+        padding: 10px 20px;
+        font-size: 1em;
+        background-color: lime;
+        border: none;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: darkgreen;
+        color: white;
+    }
 </style>
 </head>
 <body>
-  <div class="box">
-    <pre id="message" class="flicker">
-<span class="red">[警告]</span>
-システム異常を検出しました...
-デバイス保護モジュールに不正アクセスが発生しています。
 
-このページは動作検証用のデモです。
-</pre>
+<div class="overlay">
+    <h1>⚠ 警告：不正アクセス検出 ⚠</h1>
+    <p>システムが外部からの侵入を検知しました。データの安全は保証されません。</p>
 
-    <div>
-      <a href="#" class="button" id="revealBtn">ネタを表示する</a>
-      <a href="#" class="button" id="resetBtn" style="background:#eee">やり直す</a>
+    <div class="terminal" id="terminal">
+        <p>アクセスログ解析中...</p>
     </div>
 
-    <div id="reveal">
-      <strong>ネタです — ご安心ください！</strong>
-      <p>これは冗談の演出ページです。金銭請求や個人情報の要求はありません。当サイトでは誰かを脅す目的の使用は禁止します。</p>
-    </div>
-
-    <div class="note">※相手が不快にならない範囲で使ってね。いたずらの前に相手の許可があると安心。</div>
-  </div>
+    <button onclick="reveal()">緊急停止</button>
+</div>
 
 <script>
-// タイプライター風（メッセージをゆっくり表示）
-(function(){
-  const pre = document.getElementById('message');
-  const original = pre.textContent;
-  pre.textContent = '';
-  let i = 0;
-  function step(){
-    if(i < original.length){
-      pre.textContent += original.charAt(i++);
-      setTimeout(step, 20); // 文字速度（ミリ秒）
+    const terminal = document.getElementById("terminal");
+    const logs = [
+        "root@server:~$ sudo access_check --scan",
+        "接続元: 192.168.0.42",
+        "データ送信中... ██████▒▒▒▒▒ 60%",
+        "WARNING: Unauthorized access detected",
+        "ファイル暗号化中...",
+        "サーバー応答なし...",
+        "ERROR: System breach confirmed"
+    ];
+
+    let i = 0;
+    setInterval(() => {
+        if (i < logs.length) {
+            const p = document.createElement("p");
+            p.textContent = logs[i];
+            terminal.appendChild(p);
+            terminal.scrollTop = terminal.scrollHeight;
+            i++;
+        }
+    }, 1500);
+
+    function reveal() {
+        alert("これはドッキリです！システムは安全です。");
     }
-  }
-  step();
-})();
-
-// ネタ表示ボタン
-document.getElementById('revealBtn').addEventListener('click', function(e){
-  e.preventDefault();
-  const r = document.getElementById('reveal');
-  r.style.display = 'block';
-  // スクロールして見せる
-  r.scrollIntoView({behavior:'smooth',block:'center'});
-});
-
-// リセット
-document.getElementById('resetBtn').addEventListener('click', function(e){
-  e.preventDefault();
-  // 再読み込みで簡単リセット
-  location.reload();
-});
 </script>
+
 </body>
 </html>
